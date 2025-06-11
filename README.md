@@ -1,1 +1,1 @@
-# my-church-projects
+my-church-projects
