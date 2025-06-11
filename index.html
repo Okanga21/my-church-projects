@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voi P.A.G - Small enough to recognize you but big enough to sort you out</title>
+    <base target="_self">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@preline/preline@2.0.0/dist/preline.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        // Language toggle
+        let currentLanguage = 'en';
+        const translations = {
+            en: {
+                navHome: "Home",
+                navBible: "Bible",
+                navServices: "Services",
+                navHymns: "Hymns",
+                navEvents: "Events",
+                navLeadership: "Leadership",
+                navGallery: "Gallery",
+                navContact: "Contact",
+                // Add more translations as needed
+            },
+            sw: {
+                navHome: "Nyumbani",
+                navBible: "Biblia",
+                navServices: "Huduma",
+                navHymns: "Nyimbo",
+                navEvents: "Matukio",
+                navLeadership: "Uongozi",
+                navGallery: "Picha",
+                navContact: "Mawasiliano",
+                // Add more translations as needed
+            }
+        };
+
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'en' ? 'sw' : 'en';
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                const key = el.getAttribute('data-translate');
+                el.textContent = translations[currentLanguage][key];
+            });
+        }
+
+        // Bible search function
+        function searchBible() {
+            const book = document.getElementById('bible-book').value;
+            const chapter = document.getElementById('bible-chapter').value;
+            const verse = document.getElementById('bible-verse').value;
+            const translation = document.getElementById('bible-translation').value;
+            const resultDiv = document.getElementById('bible-result');
+
+            fetch(`https://bible-api.com/${book}+${chapter}:${verse}?translation=${translation}`)
+                .then(response => response.json())
+                .then(data => {
+                    resultDiv.innerHTML = `
+                        <div class="p-4 bg-white dark:bg-gray-700 rounded-lg shadow">
+                            <p class="text-lg mb-2">${data.text}</p>
+                            <p class="text-sm text-gray-500">${data.reference} (${translation.toUpperCase()})</p>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = `<p class="text-red-500">Error: Could not fetch verse. Please check your reference.</p>`;
+                });
+        }
+
+        // Hymns data
+        const hymns = {
+            worship: [
+                { title: "Mungu Wangu Nakuabudu", lyrics: "Mungu wangu nakuabudu...", audio: "#" },
+                { title: "Ninaimba Nitakavyo", lyrics: "Ninaimba nitakavyo...", audio: "#" }
+            ],
+            salvation: [
+                { title: "Yesu Ni Bwana", lyrics: "Yesu ni Bwana...", audio: "#" },
+                { title: "Nimeokolewa", lyrics: "Nimeokolewa...", audio: "#" }
+            ]
+        };
+
+        function displayHymns(category) {
+            const hymnsContainer = document.getElementById('hymns-container');
+            hymnsContainer.innerHTML = hymns[category].map(hymn => `
+                <div class="p-4 bg-white dark:bg-gray-700 rounded-lg shadow mb-4">
+                    <h3 class="text-xl font-bold mb-2">${hymn.title}</h3>
+                    <div class="flex items-center mb-3">
+                        <audio controls class="mr-3">
+                            <source src="${hymn.audio}" type="audio/mpeg">
+                        </audio>
+                    </div>
+                    <pre class="bg-gray-100 dark:bg-gray-800 p-3 rounded whitespace-pre-wrap">${hymn.lyrics}</pre>
+                </div>
+            `).join('');
+        }
+
+        // Events data
+        const events = [
+            { date: "coming soon", title: "coming soon", description: "coming soon", location: "coming soon" },
+        ];
+
+        function displayEvents() {
+            const eventsContainer = document.getElementById('events-container');
+            eventsContainer.innerHTML = events.map(event => `
+                <div class="p-4 bg-white dark:bg-gray-700 rounded-lg shadow mb-4">
+                    <div class="flex items-start">
+                        <div class="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-lg p-3 mr-4 text-center">
+                            <div class="text-xl font-bold">${new Date(event.date).getDate()}</div>
+                            <div class="text-sm">${new Date(event.date).toLocaleString('default', { month: 'short' })}</div>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">${event.title}</h3>
+                            <p class="text-gray-600 dark:text-gray-300">${event.description}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                <i class="fas fa-map-marker-alt mr-1"></i> ${event.location}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize functions when DOM loads
+        document.addEventListener('DOMContentLoaded', () => {
+            updateLanguage();
+            displayHymns('worship');
+            displayEvents();
+        });
+    </script>
+    <style>
+        .language-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        .language-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .language-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 30px;
+        }
+        .language-slider:before {
+            position: absolute;
+            content: "EN";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        input:checked + .language-slider {
+            background-color: #ef4444;
+        }
+        input:checked + .language-slider:before {
+            content: "SW";
+            transform: translateX(30px);
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: #ef4444;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover:after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-300 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <div class="bg-red-600 text-white p-2 rounded-full mr-3">
+                        <i class="fas fa-church text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">Voi Pentecostal of God</h1>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Small enough to recognize you but big enough to sort you out</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <label class="language-switch">
+                        <input type="checkbox" onclick="toggleLanguage()">
+                        <span class="language-slider"></span>
+                    </label>
+                    
+                    <nav class="hidden md:flex space-x-6">
+                        <a href="#home" class="nav-link" data-translate="navHome">Home</a>
+                        <a href="#bible" class="nav-link" data-translate="navBible">Bible</a>
+                        <a href="#services" class="nav-link" data-translate="navServices">Services</a>
+                        <a href="#hymns" class="nav-link" data-translate="navHymns">Hymns</a>
+                        <a href="#events" class="nav-link" data-translate="navEvents">Events</a>
+                        <a href="#contact" class="nav-link" data-translate="navContact">Contact</a>
+                    </nav>
+                    
+                    <button class="md:hidden text-gray-600 dark:text-gray-300">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="bg-gradient-to-r from-red-700 to-red-900 text-white py-20">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Karibu Voi P.A.G</h1>
+            <p class="text-xl mb-8 max-w-2xl mx-auto">Welcome to Voi Pentecostal Assemblies of God</p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#services" class="px-6 py-3 bg-white text-red-700 font-semibold rounded-lg shadow hover:bg-gray-100 transition">
+                    <i class="fas fa-calendar-alt mr-2"></i> Service Times
+                </a>
+                <a href="#bible" class="px-6 py-3 bg-transparent border-2 border-white font-semibold rounded-lg hover:bg-white/10 transition">
+                    <i class="fas fa-bible mr-2"></i> Read Bible
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bible Tool Section -->
+    <section id="bible" class="py-16 bg-white dark:bg-gray-800">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-8" data-translate="navBible">Bible</h2>
+            
+            <div class="max-w-3xl mx-auto bg-gray-50 dark:bg-gray-700 p-6 rounded-lg shadow">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <input type="text" id="bible-book" placeholder="Book (e.g. John)" class="px-4 py-2 border rounded dark:bg-gray-800 dark:border-gray-600">
+                    <input type="number" id="bible-chapter" placeholder="Chapter" class="px-4 py-2 border rounded dark:bg-gray-800 dark:border-gray-600">
+                    <input type="number" id="bible-verse" placeholder="Verse" class="px-4 py-2 border rounded dark:bg-gray-800 dark:border-gray-600">
+                    <select id="bible-translation" class="px-4 py-2 border rounded dark:bg-gray-800 dark:border-gray-600">
+                        <option value="kjv">KJV (English)</option>
+                        <option value="swahili">Swahili</option>
+                    </select>
+                </div>
+                <button onclick="searchBible()" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg transition mb-6">
+                    <i class="fas fa-search mr-2"></i> Search Verse
+                </button>
+                
+                <div id="bible-result" class="min-h-40 p-4 bg-white dark:bg-gray-800 rounded border dark:border-gray-600">
+                    <p class="text-center text-gray-500">Search for a Bible verse above</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="py-16 bg-gray-50 dark:bg-gray-900">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12" data-translate="navServices">Services</h2>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Sunday Service -->
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition">
+                    <div class="text-red-600 dark:text-red-400 text-4xl mb-4">
+                        <i class="fas fa-church"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Sunday Service</h3>
+                      <p class="text-gray-600 dark:text-gray-300 mb-4">First Service</p>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">8:00 AM - 10:30 AM</p>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4">Second Service</p>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">10:30 AM - 1:30 PM</p>
+                    <p class="text-gray-600 dark:text-gray-300">Our main worship service with preaching, prayer, and communion.</p>
+                </div>
+                
+                <!-- Wednesday Service -->
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition">
+                    <div class="text-red-600 dark:text-red-400 text-4xl mb-4">
+                        <i class="fas fa-praying-hands"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Wednesday Prayer</h3>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">6:00 PM - 7:30 PM</p>
+                    <p class="text-gray-600 dark:text-gray-300">Midweek prayer meeting and Bible study for spiritual growth.</p>
+                </div>
+                
+                <!-- Sunday School -->
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition">
+                    <div class="text-red-600 dark:text-red-400 text-4xl mb-4">
+                        <i class="fas fa-bible"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Sunday School</h3>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">8:00 AM - 8:45 AM</p>
+                    <p class="text-gray-600 dark:text-gray-300">Bible classes for all ages before the main service.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hymns Section -->
+    <section id="hymns" class="py-16 bg-white dark:bg-gray-800">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-8" data-translate="navHymns">Hymns</h2>
+            
+            <div class="max-w-4xl mx-auto">
+                <div class="flex flex-wrap gap-2 mb-8 justify-center">
+                    <button onclick="displayHymns('worship')" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
+                        <i class="fas fa-hands-praying mr-2"></i> Worship
+                    </button>
+                    <button onclick="displayHymns('salvation')" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                        <i class="fas fa-cross mr-2"></i> Salvation
+                    </button>
+                    <button onclick="displayHymns('praise')" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                        <i class="fas fa-music mr-2"></i> Praise
+                    </button>
+                </div>
+                
+                <div id="hymns-container" class="space-y-6">
+                    <!-- Hymns will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Events Section -->
+    <section id="events" class="py-16 bg-gray-50 dark:bg-gray-900">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-8" data-translate="navEvents">Events</h2>
+            
+            <div class="max-w-4xl mx-auto">
+                <div id="events-container">
+                    <!-- Events will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 bg-white dark:bg-gray-800">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-8" data-translate="navContact">Contact</h2>
+            
+            <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Church Location</h3>
+                    <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow mb-6">
+                        <p class="mb-2"><i class="fas fa-map-marker-alt text-red-600 mr-2"></i> Voi Town, Taita Taveta County</p>
+                        <p class="mb-2"><i class="fas fa-phone text-red-600 mr-2"></i> +254725535943</p>
+                        <p class="mb-2"><i class="fas fa-envelope text-red-600 mr-2"></i> info@voipag.org</p>
+                    </div>
+                    
+                    <div class="h-64 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.234567890123!2d38.56789!3d-3.45678!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zM8KwMjcnMjQuNCJTIDM4wrAzNCcwOC40IkU!5e0!3m2!1sen!2ske!4v1234567890123!5m2!1sen!2ske" 
+                                width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Send Us a Message</h3>
+                    <form class="space-y-4">
+                        <div>
+                            <label class="block mb-1">Name</label>
+                            <input type="text" class="w-full px-4 py-2 border rounded dark:bg-gray-700 dark:border-gray-600">
+                        </div>
+                        <div>
+                            <label class="block mb-1">Email</label>
+                            <input type="email" class="w-full px-4 py-2 border rounded dark:bg-gray-700 dark:border-gray-600">
+                        </div>
+                        <div>
+                            <label class="block mb-1">Message</label>
+                            <textarea rows="4" class="w-full px-4 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg transition">
+                            <i class="fas fa-paper-plane mr-2"></i> Send Message
+                        </button>
+                    </form>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-xl font-bold mb-4">Follow Us</h3>
+                        <div class="flex space-x-4">
+                            <a href="#" class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-blue-400 text-white rounded-full flex items-center justify-center hover:bg-blue-500 transition">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center hover:bg-red-700 transition">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-purple-600 text-white rounded-full flex items-center justify-center hover:bg-purple-700 transition">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-300 py-8">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4 text-white">Voi P.A.G</h3>
+                    <p>Small enough to recognize you but big enough to sort you out</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4 text-white">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#home" class="hover:text-red-400 transition">Home</a></li>
+                        <li><a href="#services" class="hover:text-red-400 transition">Services</a></li>
+                        <li><a href="#events" class="hover:text-red-400 transition">Events</a></li>
+                        <li><a href="#contact" class="hover:text-red-400 transition">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4 text-white">Contact Info</h3>
+                    <p><i class="fas fa-map-marker-alt mr-2"></i> Voi Town, Kenya</p>
+                    <p class="mt-2"><i class="fas fa-phone mr-2"></i> +254 725535943</p>
+                    <p class="mt-2"><i class="fas fa-envelope mr-2"></i> info@voipag.org</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center">
+                <p>&copy; 2025 Voi Pentecostal of God. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
